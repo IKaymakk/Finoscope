@@ -16,9 +16,13 @@ public class AccountingReadRepository : IAccountingReadRepository
     public AccountingReadRepository(FinoscopeDbContext context) => _context = context;
 
     /// <summary>
-    /// Verilen müşteri için faturalar ve ödemeler dikkate alınarak maksimum borç tarihini ve bakiyesini döner.
+    /// Verilen müşteri için maksimum borç tarihini ve bakiyesini hesaplıyoruz
     /// </summary>
-
+    /// <param name="musteriId">Müşteri Id</param>
+    /// <param name="start">Opsiyonel başlangıç tarihi</param>
+    /// <param name="end">Opsiyonel bitiş tarihi</param>
+    /// <param name="ct">Cancellation token</param>
+    /// <returns>MaxDebtResultDto veya null</returns>
     public async Task<MaxDebtResultDto?> GetMaxDebtDateAsync(int musteriId, DateTime? start = null, DateTime? end = null, CancellationToken ct = default)
     {
         // end belirtilmişse end'e kadar al
