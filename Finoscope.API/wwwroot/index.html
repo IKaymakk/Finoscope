@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşteri Borç Takibi</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="container flex flex-col items-center">
+        <h1 class="text-3xl text-header font-bold mb-2 text-center">Müşteri Borç Takibi</h1>
+        <p class="text-lg text-subheader mb-8 text-center">Müşteri ve tarih aralığı seçerek borç seyrini ve en yüksek borç tarihini görüntüleyin.</p>
+
+        <div class="w-full flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+            <div class="w-full md:w-1/2">
+                <label for="customerSelect" class="block text-sm font-medium text-gray-700 mb-1">Müşteri Seçin</label>
+                <select id="customerSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                    <option value="">Seçiniz...</option>
+                </select>
+            </div>
+            <div class="w-full md:w-1/2">
+                <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Başlangıç Tarihi (Opsiyonel)</label>
+                <input type="date" id="startDate" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+            </div>
+            <div class="w-full md:w-1/2">
+                <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Bitiş Tarihi (Opsiyonel)</label>
+                <input type="date" id="endDate" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+            </div>
+            <div class="w-full md:w-1/4">
+                <button id="filterBtn" class="mt-6 w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Göster</button>
+            </div>
+        </div>
+
+        <!-- Hata mesajı -->
+        <div id="errorMessage" class="hidden w-full mt-8 p-4 bg-red-100 text-red-700 rounded-lg mb-4">
+            Hata: <span id="errorText"></span>
+        </div>
+
+        <div id="resultsContainer" class="w-full mt-8 hidden">
+            <div id="loadingIndicator" class="text-center text-gray-500 hidden">
+                Yükleniyor...
+            </div>
+
+            <div class="w-full bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <canvas id="debtChart"></canvas>
+            </div>
+
+            <div id="maxDebtSummary" class="mt-4 p-4 bg-yellow-100 text-yellow-800 rounded-lg hidden">
+                <span class="font-medium">En Yüksek Borç:</span> <span id="maxDateSummary" class="font-bold"></span> tarihinde, <span id="maxBalanceSummary" class="font-bold"></span> ₺ ile görüldü.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 ﻿using Finoscope.Application.DTOs;
 using Finoscope.Application.Interfaces.Repositories;
+using Finoscope.Domain.Entities;
 using Finoscope.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,14 +17,18 @@ public class AccountingReadRepository : IAccountingReadRepository
     public AccountingReadRepository(FinoscopeDbContext context) => _context = context;
 
     /// <summary>
-    /// Verilen müşteri için maksimum borç tarihini ve bakiyesini hesaplıyoruz
+    /// Verilen müşteri için maksimum borç tarihini ve borcunu hesaplıyoruz
     /// </summary>
     /// <param name="musteriId">Müşteri Id</param>
     /// <param name="start">Opsiyonel başlangıç tarihi</param>
     /// <param name="end">Opsiyonel bitiş tarihi</param>
     /// <param name="ct">Cancellation token</param>
     /// <returns>MaxDebtResultDto veya null</returns>
-    public async Task<MaxDebtResultDto?> GetMaxDebtDateAsync(int musteriId, DateTime? start = null, DateTime? end = null, CancellationToken ct = default)
+    public async Task<MaxDebtResultDto?> GetMaxDebtDateAsync(
+        int musteriId,
+        DateTime? start = null,
+        DateTime? end = null,
+        CancellationToken ct = default)
     {
         // end belirtilmişse end'e kadar al
         var query = _context.Faturalar
@@ -51,7 +56,7 @@ public class AccountingReadRepository : IAccountingReadRepository
 
         if (!invoices.Any()) return null;
 
-        // 2) event
+        //  events
         var events = invoices
             .SelectMany(i =>
             {
@@ -67,14 +72,14 @@ public class AccountingReadRepository : IAccountingReadRepository
 
         if (!events.Any()) return null;
 
-        // 3) Aralık belirle
+        // Aralık belirle
         var startDate = (start?.Date) ?? events.First().Date;
         var endDate = (end?.Date) ?? events.Last().Date;
 
-        // 4) Başlangıçtaki (start öncesi) running balance
+        //  Başlangıçtaki (start öncesi) running balance
         decimal running = events.Where(e => e.Date < startDate).Sum(e => e.Net);
 
-        // 5) Aralıktaki her tarih için end-of-day balance hesapla ve maksimumu bul
+        //  Aralıktaki her tarih için end-of-day balance hesapla ve maksimumu bul
         DateTime? maxDate = null;
         decimal maxBalance = decimal.MinValue;
 
@@ -91,7 +96,6 @@ public class AccountingReadRepository : IAccountingReadRepository
 
         if (maxDate == null) return null;
 
-        // 6) Müşteri bilgisi
         var cust = await _context.Musteriler
             .AsNoTracking()
             .Where(m => m.Id == musteriId)
@@ -105,5 +109,48 @@ public class AccountingReadRepository : IAccountingReadRepository
             Date = maxDate.Value,
             Balance = maxBalance
         };
+    }
+
+
+    public async Task<List<Musteri>> GetAllCustomersAsync()
+    {
+        return await _context.Musteriler
+                             .AsNoTracking()
+                             .OrderBy(m => m.Unvan) 
+                             .Select(m => new Musteri
+                             {
+                                 Id = m.Id,
+                                 Unvan = m.Unvan
+                             })
+                             .ToListAsync();
+    }
+
+    public async Task<Musteri?> GetCustomerInfoAsync(int musteriId)
+    {
+        return await _context.Musteriler
+                             .AsNoTracking()
+                             .Where(m => m.Id == musteriId)
+                             .Select(m => new Musteri
+                             {
+                                 Id = m.Id,
+                                 Unvan = m.Unvan,
+                             })
+                             .FirstOrDefaultAsync();
+    }
+
+    public async Task<List<Fatura>> GetCustomerInvoicesAsync(int musteriId)
+    {
+        return await _context.Faturalar
+            .AsNoTracking()
+            .Where(f => f.MusteriId == musteriId)
+            .Select(f => new Fatura
+            {
+                Id = f.Id,
+                MusteriId = f.MusteriId,
+                FaturaTarihi = f.FaturaTarihi,
+                OdemeTarihi = f.OdemeTarihi,
+                FaturaTutari = f.FaturaTutari
+            })
+            .ToListAsync();
     }
 }

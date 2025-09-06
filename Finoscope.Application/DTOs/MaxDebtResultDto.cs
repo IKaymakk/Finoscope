@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Finoscope.Application.DTOs;
 
 
-public sealed class MaxDebtResultDto
+public class MaxDebtResultDto
 {
     public int MusteriId { get; init; }
     public string? Unvan { get; init; }

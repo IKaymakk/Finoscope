@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Finoscope.Application.Features.GetMaxDebtDate;
 
+/// <summary>
+///  Seçilen Müşterinin Faturalandırılma En Yüksek Borç Tarihi - Ama Asıl Olarak Burayı Kullanmıyoruz.
+/// </summary>
 public class GetMaxDebtDateHandler : IRequestHandler<GetMaxDebtDateQuery, MaxDebtResultDto?>
 {
     private readonly IAccountingReadRepository _repo;
